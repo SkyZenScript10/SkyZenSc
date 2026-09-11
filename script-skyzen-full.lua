@@ -1,9 +1,11 @@
--- SkyZen Arsenal Script - Full Features dengan Rayfield GUI
--- Semua Fitur: ESP, Aimlock, Lane, Tracer, Wallhack, Gun Settings, Visual
+-- SkyZen Arsenal Full Script - COMPLETE VERSION
+-- All Features: ESP, Aimlock, Lane, Tracer, Wallhack, Gun Settings, Visual Settings
+-- Team Check - Skip Teammate
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Camera = workspace.CurrentCamera
+local UserInputService = game:GetService("UserInputService")
 
 local player = Players.LocalPlayer
 local mouse = player:GetMouse()
@@ -18,6 +20,7 @@ local config = {
     espDistance = 500,
     espNameSize = 16,
     espNameColor = Color3.fromRGB(0, 255, 0),
+    showDistance = true,
     
     -- Aimlock
     aimlockEnabled = true,
@@ -58,6 +61,7 @@ local espPlayers = {}
 local laneConnections = {}
 local tracerConnections = {}
 local wallhackPlayers = {}
+local healthBarPlayers = {}
 local targetPlayer = nil
 
 -- Create Rayfield Window
@@ -137,6 +141,15 @@ local ESPColorPicker = ESPTab:CreateColorPicker({
                 gui.TextLabel.TextColor3 = Value
             end
         end
+    end,
+})
+
+local ShowDistanceToggle = ESPTab:CreateToggle({
+    Name = "Show Distance",
+    CurrentValue = config.showDistance,
+    Flag = "ShowDistance",
+    Callback = function(Value)
+        config.showDistance = Value
     end,
 })
 
@@ -741,7 +754,9 @@ player.CharacterAdded:Connect(function()
     laneConnections = {}
     tracerConnections = {}
     wallhackPlayers = {}
+    healthBarPlayers = {}
     targetPlayer = nil
 end)
 
-print("✅ SkyZen Arsenal Loaded - FULL VERSION")
+print("✅ SkyZen Arsenal FULL VERSION Loaded!")
+print("📊 All Features Active!")
