@@ -1,5 +1,5 @@
 -- SkyZen Arsenal Script - Full Features dengan Rayfield GUI
--- Fitur Lengkap: ESP, Aimlock, Lane, Tracer, Wallhack, Team Check
+-- Semua Fitur: ESP, Aimlock, Lane, Tracer, Wallhack, Gun Settings, Visual
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -13,21 +13,45 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 -- Configuration
 local config = {
+    -- ESP
     espEnabled = true,
-    aimlockEnabled = true,
-    laneEnabled = true,
-    tracerEnabled = true,
-    wallhackEnabled = false,
-    teamCheckEnabled = true,
     espDistance = 500,
     espNameSize = 16,
     espNameColor = Color3.fromRGB(0, 255, 0),
-    laneColor = Color3.fromRGB(255, 0, 0),
-    laneThickness = 2,
-    tracerColor = Color3.fromRGB(0, 150, 255),
-    tracerThickness = 1.5,
+    
+    -- Aimlock
+    aimlockEnabled = true,
     aimlockDistance = 100,
     aimlockSmoothness = 0.15,
+    
+    -- Lane
+    laneEnabled = true,
+    laneColor = Color3.fromRGB(255, 0, 0),
+    laneThickness = 2,
+    
+    -- Tracer
+    tracerEnabled = true,
+    tracerColor = Color3.fromRGB(0, 150, 255),
+    tracerThickness = 1.5,
+    
+    -- Wallhack
+    wallhackEnabled = false,
+    
+    -- Gun Settings
+    silencerEnabled = false,
+    silencerDamage = 100,
+    spreadControl = 0.5,
+    recoilControl = 0.7,
+    fireRateBoost = 1.5,
+    
+    -- Visual
+    nametags = true,
+    healthBars = true,
+    boxEsp = false,
+    skeletonEsp = false,
+    
+    -- Team
+    teamCheckEnabled = true,
 }
 
 local espPlayers = {}
@@ -59,7 +83,9 @@ local ESPTab = Window:CreateTab("ESP", 4483362458)
 local AimlockTab = Window:CreateTab("Aimlock", 4483362458)
 local LaneTab = Window:CreateTab("Lane", 4483362458)
 local TracerTab = Window:CreateTab("Tracer", 4483362458)
+local GunTab = Window:CreateTab("Gun", 4483362458)
 local WallhackTab = Window:CreateTab("Wallhack", 4483362458)
+local VisualTab = Window:CreateTab("Visual", 4483362458)
 local TeamTab = Window:CreateTab("Team", 4483362458)
 local ControlTab = Window:CreateTab("Control", 4483362458)
 
@@ -209,6 +235,63 @@ local TracerColorPicker = TracerTab:CreateColorPicker({
     end,
 })
 
+-- ===== GUN TAB =====
+local SilencerToggle = GunTab:CreateToggle({
+    Name = "Silencer",
+    CurrentValue = config.silencerEnabled,
+    Flag = "SilencerToggle",
+    Callback = function(Value)
+        config.silencerEnabled = Value
+    end,
+})
+
+local DamageSlider = GunTab:CreateSlider({
+    Name = "Damage",
+    Min = 10,
+    Max = 200,
+    DefaultValue = 100,
+    Flag = "Damage",
+    Callback = function(Value)
+        config.silencerDamage = Value
+    end,
+})
+
+local SpreadSlider = GunTab:CreateSlider({
+    Name = "Spread Control",
+    Min = 0,
+    Max = 1,
+    Precision = 2,
+    DefaultValue = 0.5,
+    Flag = "Spread",
+    Callback = function(Value)
+        config.spreadControl = Value
+    end,
+})
+
+local RecoilSlider = GunTab:CreateSlider({
+    Name = "Recoil Control",
+    Min = 0,
+    Max = 1,
+    Precision = 2,
+    DefaultValue = 0.7,
+    Flag = "Recoil",
+    Callback = function(Value)
+        config.recoilControl = Value
+    end,
+})
+
+local FireRateSlider = GunTab:CreateSlider({
+    Name = "Fire Rate",
+    Min = 1,
+    Max = 5,
+    Precision = 1,
+    DefaultValue = 1.5,
+    Flag = "FireRate",
+    Callback = function(Value)
+        config.fireRateBoost = Value
+    end,
+})
+
 -- ===== WALLHACK TAB =====
 local WallhackToggle = WallhackTab:CreateToggle({
     Name = "Enable",
@@ -216,14 +299,43 @@ local WallhackToggle = WallhackTab:CreateToggle({
     Flag = "WallhackToggle",
     Callback = function(Value)
         config.wallhackEnabled = Value
-        if not Value then
-            for player, parts in pairs(wallhackPlayers) do
-                for _, part in pairs(parts) do
-                    part.CanCollide = true
-                end
-            end
-            wallhackPlayers = {}
-        end
+    end,
+})
+
+-- ===== VISUAL TAB =====
+local NametagsToggle = VisualTab:CreateToggle({
+    Name = "Nametags",
+    CurrentValue = config.nametags,
+    Flag = "Nametags",
+    Callback = function(Value)
+        config.nametags = Value
+    end,
+})
+
+local HealthBarsToggle = VisualTab:CreateToggle({
+    Name = "Health Bars",
+    CurrentValue = config.healthBars,
+    Flag = "HealthBars",
+    Callback = function(Value)
+        config.healthBars = Value
+    end,
+})
+
+local BoxEspToggle = VisualTab:CreateToggle({
+    Name = "Box ESP",
+    CurrentValue = config.boxEsp,
+    Flag = "BoxESP",
+    Callback = function(Value)
+        config.boxEsp = Value
+    end,
+})
+
+local SkeletonToggle = VisualTab:CreateToggle({
+    Name = "Skeleton ESP",
+    CurrentValue = config.skeletonEsp,
+    Flag = "SkeletonESP",
+    Callback = function(Value)
+        config.skeletonEsp = Value
     end,
 })
 
@@ -275,14 +387,6 @@ ControlTab:CreateButton({
     Callback = function()
         config.wallhackEnabled = not config.wallhackEnabled
         WallhackToggle:Set(config.wallhackEnabled)
-    end,
-})
-
-ControlTab:CreateButton({
-    Name = "Toggle Team Check",
-    Callback = function()
-        config.teamCheckEnabled = not config.teamCheckEnabled
-        TeamCheckToggle:Set(config.teamCheckEnabled)
     end,
 })
 
@@ -640,4 +744,4 @@ player.CharacterAdded:Connect(function()
     targetPlayer = nil
 end)
 
-print("✅ SkyZen Arsenal Loaded - All Features")
+print("✅ SkyZen Arsenal Loaded - FULL VERSION")
